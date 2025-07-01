@@ -2,7 +2,10 @@ module github.com/jackchuka/gh-oss-watch
 
 go 1.24.4
 
-require github.com/cli/go-gh/v2 v2.12.1
+require (
+	github.com/cli/go-gh/v2 v2.12.1
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -15,8 +18,13 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/thlib/go-timezone-local v0.0.0-20210907160436-ef149e42d28e // indirect
+	go.uber.org/mock v0.5.2 // indirect
+	golang.org/x/mod v0.18.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	golang.org/x/tools v0.22.0 // indirect
 )
+
+tool go.uber.org/mock/mockgen

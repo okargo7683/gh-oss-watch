@@ -2,25 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/jackchuka/gh-oss-watch/cmd"
+	"github.com/jackchuka/gh-oss-watch/services"
 )
 
 func main() {
-	fmt.Println("hi world, this is the gh-oss-watch extension!")
-	client, err := api.DefaultRESTClient()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	response := struct {Login string}{}
-	err = client.Get("user", &response)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("running as %s\n", response.Login)
-}
+	configService := services.NewConfigService()
+	cacheService := services.NewCacheService()
+	output := services.NewConsoleOutput()
 
-// For more examples of using go-gh, see:
-// https://github.com/cli/go-gh/blob/trunk/example_gh_test.go
+	githubService, err := services.NewGitHubService()
+	if err != nil {
+		fmt.Printf("Error creating GitHub service: %v\n", err)
+		os.Exit(1)
+	}
+
+	cli := cmd.NewCLI(configService, cacheService, githubService, output)
+	cli.Run(os.Args)
+}
