@@ -13,7 +13,7 @@ func HandleStatus(configService services.ConfigService, cacheService services.Ca
 	}
 
 	if len(config.Repos) == 0 {
-		output.Println("No repositories configured. Use 'gh oss-watch config add <repo>' to add some.")
+		output.Println("No repositories configured. Use 'gh oss-watch add <repo>' to add some.")
 		return nil
 	}
 

@@ -19,6 +19,6 @@ func HandleInit(configService services.ConfigService, output services.Output) er
 	}
 
 	output.Printf("Initialized config file at %s\n", configPath)
-	output.Println("Use 'gh oss-watch config add <repo>' to start watching repositories")
+	output.Println("Use 'gh oss-watch add <repo>' to start watching repositories")
 	return nil
 }

@@ -36,7 +36,7 @@ func HandleConfigAdd(repo string, eventArgs []string, configService services.Con
 
 func HandleConfigSet(repo string, eventArgs []string, configService services.ConfigService, output services.Output) error {
 	if len(eventArgs) == 0 {
-		output.Println("Usage: gh oss-watch config set <repo> <events...>")
+		output.Println("Usage: gh oss-watch set <repo> <events...>")
 		output.Println("Available events: stars, issues, pull_requests, forks")
 		return fmt.Errorf("no events specified")
 	}
@@ -48,7 +48,7 @@ func HandleConfigSet(repo string, eventArgs []string, configService services.Con
 
 	repoConfig := config.GetRepo(repo)
 	if repoConfig == nil {
-		return fmt.Errorf("repository %s not found in config. Use 'config add' first", repo)
+		return fmt.Errorf("repository %s not found in config. Use 'gh oss-watch add' first", repo)
 	}
 
 	err = services.ValidateEvents(eventArgs)
