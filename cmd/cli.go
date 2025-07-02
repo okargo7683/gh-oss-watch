@@ -3,6 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/jackchuka/gh-oss-watch/services"
 )
@@ -29,14 +32,14 @@ func (c *CLI) Run(args []string) {
 		return
 	}
 
-	command := args[1]
-	cmdArgs := args[2:]
+	// Parse global flags and command
+	globalFlags, command, cmdArgs := c.parseGlobalFlags(args[1:])
 
 	var err error
 
 	switch command {
 	case "init":
-		err = HandleInit(c.configService, c.output)
+		err = c.handleInit()
 	case "add":
 		err = c.handleAddCommand(cmdArgs)
 	case "set":
@@ -44,9 +47,9 @@ func (c *CLI) Run(args []string) {
 	case "remove":
 		err = c.handleRemoveCommand(cmdArgs)
 	case "status":
-		err = HandleStatus(c.configService, c.cacheService, c.githubService, c.output)
+		err = c.handleStatusCommand(cmdArgs, globalFlags)
 	case "dashboard":
-		err = HandleDashboard(c.configService, c.githubService, c.output)
+		err = c.handleDashboardCommand(cmdArgs, globalFlags)
 	default:
 		c.output.Printf("Unknown command: %s\n", command)
 		c.printUsage()
@@ -59,12 +62,71 @@ func (c *CLI) Run(args []string) {
 	}
 }
 
+type GlobalFlags struct {
+	MaxConcurrent int
+	Timeout       int
+}
+
+func (c *CLI) parseGlobalFlags(args []string) (GlobalFlags, string, []string) {
+	flags := GlobalFlags{
+		MaxConcurrent: 10,
+		Timeout:       30,
+	}
+
+	var command string
+	var cmdArgs []string
+
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+
+		if after, ok := strings.CutPrefix(arg, "--max-concurrent="); ok {
+			if val, err := strconv.Atoi(after); err == nil {
+				flags.MaxConcurrent = val
+			}
+		} else if after, ok := strings.CutPrefix(arg, "--timeout="); ok {
+			if val, err := strconv.Atoi(after); err == nil {
+				flags.Timeout = val
+			}
+		} else if arg == "--max-concurrent" && i+1 < len(args) {
+			if val, err := strconv.Atoi(args[i+1]); err == nil {
+				flags.MaxConcurrent = val
+				i++ // Skip next arg
+			}
+		} else if arg == "--timeout" && i+1 < len(args) {
+			if val, err := strconv.Atoi(args[i+1]); err == nil {
+				flags.Timeout = val
+				i++ // Skip next arg
+			}
+		} else if command == "" && !strings.HasPrefix(arg, "-") {
+			command = arg
+		} else if command != "" {
+			cmdArgs = append(cmdArgs, arg)
+		}
+	}
+
+	return flags, command, cmdArgs
+}
+
+func (c *CLI) handleStatusCommand(_ []string, flags GlobalFlags) error {
+	c.githubService.SetMaxConcurrent(flags.MaxConcurrent)
+	c.githubService.SetTimeout(time.Duration(flags.Timeout) * time.Second)
+
+	return c.handleStatus()
+}
+
+func (c *CLI) handleDashboardCommand(_ []string, flags GlobalFlags) error {
+	c.githubService.SetMaxConcurrent(flags.MaxConcurrent)
+	c.githubService.SetTimeout(time.Duration(flags.Timeout) * time.Second)
+
+	return c.handleDashboard()
+}
+
 func (c *CLI) handleAddCommand(args []string) error {
 	if len(args) < 1 {
 		c.output.Println("Usage: gh oss-watch add <repo> [events...]")
 		return fmt.Errorf("repository required")
 	}
-	return HandleConfigAdd(args[0], args[1:], c.configService, c.output)
+	return c.handleConfigAdd(args[0], args[1:])
 }
 
 func (c *CLI) handleSetCommand(args []string) error {
@@ -72,7 +134,7 @@ func (c *CLI) handleSetCommand(args []string) error {
 		c.output.Println("Usage: gh oss-watch set <repo> <events...>")
 		return fmt.Errorf("repository and events required")
 	}
-	return HandleConfigSet(args[0], args[1:], c.configService, c.output)
+	return c.handleConfigSet(args[0], args[1:])
 }
 
 func (c *CLI) handleRemoveCommand(args []string) error {
@@ -80,17 +142,28 @@ func (c *CLI) handleRemoveCommand(args []string) error {
 		c.output.Println("Usage: gh oss-watch remove <repo>")
 		return fmt.Errorf("repository required")
 	}
-	return HandleConfigRemove(args[0], c.configService, c.output)
+	return c.handleConfigRemove(args[0])
 }
 
 func (c *CLI) printUsage() {
 	c.output.Println("gh-oss-watch - GitHub CLI plugin for OSS maintainers")
 	c.output.Println("")
 	c.output.Println("Usage:")
-	c.output.Println("  gh oss-watch init                    Initialize config file")
-	c.output.Println("  gh oss-watch add <repo> [events...]  Add repo to watch list")
-	c.output.Println("  gh oss-watch set <repo> <events...>  Configure events for repo")
-	c.output.Println("  gh oss-watch remove <repo>           Remove repo from watch list")
-	c.output.Println("  gh oss-watch status                  Show new activity")
-	c.output.Println("  gh oss-watch dashboard               Show summary across all repos")
+	c.output.Println("  gh oss-watch [flags] <command> [args...]")
+	c.output.Println("")
+	c.output.Println("Commands:")
+	c.output.Println("  init                    Initialize config file")
+	c.output.Println("  add <repo> [events...]  Add repo to watch list")
+	c.output.Println("  set <repo> <events...>  Configure events for repo")
+	c.output.Println("  remove <repo>           Remove repo from watch list")
+	c.output.Println("  status                  Show new activity")
+	c.output.Println("  dashboard               Show summary across all repos")
+	c.output.Println("")
+	c.output.Println("Performance Flags:")
+	c.output.Println("  --max-concurrent <n>    Max concurrent API requests (default: 10)")
+	c.output.Println("  --timeout <seconds>     Request timeout in seconds (default: 30)")
+	c.output.Println("")
+	c.output.Println("Examples:")
+	c.output.Println("  gh oss-watch status --max-concurrent 20")
+	c.output.Println("  gh oss-watch dashboard --timeout 60")
 }

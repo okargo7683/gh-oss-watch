@@ -77,7 +77,7 @@ func (c *ConfigServiceImpl) getConfigDir() (string, error) {
 	return filepath.Join(homeDir, ".gh-oss-watch"), nil
 }
 
-func ValidateEvents(events []string) error {
+func validateEvents(events []string) error {
 	validEvents := map[string]bool{
 		"stars":         true,
 		"issues":        true,
@@ -91,4 +91,40 @@ func ValidateEvents(events []string) error {
 		}
 	}
 	return nil
+}
+
+func (c *Config) AddRepo(repo string, events []string) error {
+	if err := validateEvents(events); err != nil {
+		return err
+	}
+	for i, r := range c.Repos {
+		if r.Repo == repo {
+			c.Repos[i].Events = events
+			return nil
+		}
+	}
+	c.Repos = append(c.Repos, RepoConfig{
+		Repo:   repo,
+		Events: events,
+	})
+	return nil
+}
+
+func (c *Config) GetRepo(repo string) *RepoConfig {
+	for _, r := range c.Repos {
+		if r.Repo == repo {
+			return &r
+		}
+	}
+	return nil
+}
+
+func (c *Config) RemoveRepo(repo string) error {
+	for i, r := range c.Repos {
+		if r.Repo == repo {
+			c.Repos = append(c.Repos[:i], c.Repos[i+1:]...)
+			return nil
+		}
+	}
+	return fmt.Errorf("repository %s not found in config", repo)
 }

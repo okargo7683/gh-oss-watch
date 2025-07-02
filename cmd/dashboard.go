@@ -6,19 +6,45 @@ import (
 	"github.com/jackchuka/gh-oss-watch/services"
 )
 
-func HandleDashboard(configService services.ConfigService, githubService services.GitHubService, output services.Output) error {
-	config, err := configService.Load()
+type dashboardProcessor struct {
+	output     services.Output
+	totalStats *struct {
+		Stars  int
+		Issues int
+		PRs    int
+		Forks  int
+	}
+}
+
+func (d *dashboardProcessor) ProcessRepo(repoConfig services.RepoConfig, stats *services.RepoStats, index int) error {
+	d.output.Printf("\n📁 %s\n", repoConfig.Repo)
+	d.output.Printf("   ⭐ Stars: %d\n", stats.Stars)
+	d.output.Printf("   🐛 Issues: %d\n", stats.Issues)
+	d.output.Printf("   🔀 Pull Requests: %d\n", stats.PullRequests)
+	d.output.Printf("   🍴 Forks: %d\n", stats.Forks)
+	d.output.Printf("   📅 Last Updated: %s\n", stats.UpdatedAt.Format("2006-01-02 15:04"))
+	d.output.Printf("   📢 Watching: %s\n", strings.Join(repoConfig.Events, ", "))
+
+	d.totalStats.Stars += stats.Stars
+	d.totalStats.Issues += stats.Issues
+	d.totalStats.PRs += stats.PullRequests
+	d.totalStats.Forks += stats.Forks
+
+	return nil
+}
+
+func (c *CLI) handleDashboard() error {
+	config, err := c.validateConfig()
 	if err != nil {
 		return err
 	}
 
 	if len(config.Repos) == 0 {
-		output.Println("No repositories configured. Use 'gh oss-watch add <repo>' to add some.")
 		return nil
 	}
 
-	output.Println("📊 OSS Watch Dashboard")
-	output.Println("======================")
+	c.output.Println("📊 OSS Watch Dashboard")
+	c.output.Println("======================")
 
 	totalStats := struct {
 		Stars  int
@@ -27,38 +53,21 @@ func HandleDashboard(configService services.ConfigService, githubService service
 		Forks  int
 	}{}
 
-	for _, repoConfig := range config.Repos {
-		owner, repo, err := services.ParseRepoString(repoConfig.Repo)
-		if err != nil {
-			output.Printf("Error parsing repo %s: %v\n", repoConfig.Repo, err)
-			continue
-		}
-
-		stats, err := githubService.GetRepoStats(owner, repo)
-		if err != nil {
-			output.Printf("Error fetching stats for %s: %v\n", repoConfig.Repo, err)
-			continue
-		}
-
-		output.Printf("\n📁 %s\n", repoConfig.Repo)
-		output.Printf("   ⭐ Stars: %d\n", stats.Stars)
-		output.Printf("   🐛 Issues: %d\n", stats.Issues)
-		output.Printf("   🔀 Pull Requests: %d\n", stats.PullRequests)
-		output.Printf("   🍴 Forks: %d\n", stats.Forks)
-		output.Printf("   📅 Last Updated: %s\n", stats.UpdatedAt.Format("2006-01-02 15:04"))
-		output.Printf("   📢 Watching: %s\n", strings.Join(repoConfig.Events, ", "))
-
-		totalStats.Stars += stats.Stars
-		totalStats.Issues += stats.Issues
-		totalStats.PRs += stats.PullRequests
-		totalStats.Forks += stats.Forks
+	processor := &dashboardProcessor{
+		output:     c.output,
+		totalStats: &totalStats,
 	}
 
-	output.Println("\n📈 Total Across All Repos:")
-	output.Printf("   ⭐ Total Stars: %d\n", totalStats.Stars)
-	output.Printf("   🐛 Total Issues: %d\n", totalStats.Issues)
-	output.Printf("   🔀 Total PRs: %d\n", totalStats.PRs)
-	output.Printf("   🍴 Total Forks: %d\n", totalStats.Forks)
+	err = c.processReposWithBatch(config, processor)
+	if err != nil {
+		return err
+	}
+
+	c.output.Println("\n📈 Total Across All Repos:")
+	c.output.Printf("   ⭐ Total Stars: %d\n", totalStats.Stars)
+	c.output.Printf("   🐛 Total Issues: %d\n", totalStats.Issues)
+	c.output.Printf("   🔀 Total PRs: %d\n", totalStats.PRs)
+	c.output.Printf("   🍴 Total Forks: %d\n", totalStats.Forks)
 
 	return nil
 }

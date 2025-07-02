@@ -2,7 +2,10 @@ package services
 
 //go:generate go tool mockgen -source=$GOFILE -package=mock_$GOPACKAGE -destination=./mock/mock_$GOFILE
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type ConfigService interface {
 	Load() (*Config, error)
@@ -15,9 +18,21 @@ type CacheService interface {
 	Save(cache *CacheData) error
 }
 
+type GitHubAPIClient interface {
+	Get(ctx context.Context, path string, response any) error
+	GetRepoData(ctx context.Context, owner, repo string) (*RepoAPIData, error)
+	GetPullRequests(ctx context.Context, owner, repo string) ([]PullRequestAPIData, error)
+}
+
 type GitHubService interface {
 	GetRepoStats(owner, repo string) (*RepoStats, error)
-	GetCurrentUser() (string, error)
+	SetMaxConcurrent(maxConcurrent int)
+	SetTimeout(timeout time.Duration)
+}
+
+type BatchGitHubService interface {
+	GitHubService
+	GetRepoStatsBatch(repos []string) ([]*RepoStats, []error)
 }
 
 type Output interface {
@@ -64,36 +79,4 @@ type EventSummary struct {
 	NewPRs     int
 	NewForks   int
 	HasChanges bool
-}
-
-func (c *Config) AddRepo(repo string, events []string) {
-	for i, r := range c.Repos {
-		if r.Repo == repo {
-			c.Repos[i].Events = events
-			return
-		}
-	}
-	c.Repos = append(c.Repos, RepoConfig{
-		Repo:   repo,
-		Events: events,
-	})
-}
-
-func (c *Config) GetRepo(repo string) *RepoConfig {
-	for _, r := range c.Repos {
-		if r.Repo == repo {
-			return &r
-		}
-	}
-	return nil
-}
-
-func (c *Config) RemoveRepo(repo string) bool {
-	for i, r := range c.Repos {
-		if r.Repo == repo {
-			c.Repos = append(c.Repos[:i], c.Repos[i+1:]...)
-			return true
-		}
-	}
-	return false
 }
