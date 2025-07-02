@@ -10,7 +10,9 @@
 package mock_services
 
 import (
+	context "context"
 	reflect "reflect"
+	time "time"
 
 	services "github.com/jackchuka/gh-oss-watch/services"
 	gomock "go.uber.org/mock/gomock"
@@ -137,6 +139,74 @@ func (mr *MockCacheServiceMockRecorder) Save(cache any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockCacheService)(nil).Save), cache)
 }
 
+// MockGitHubAPIClient is a mock of GitHubAPIClient interface.
+type MockGitHubAPIClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockGitHubAPIClientMockRecorder
+	isgomock struct{}
+}
+
+// MockGitHubAPIClientMockRecorder is the mock recorder for MockGitHubAPIClient.
+type MockGitHubAPIClientMockRecorder struct {
+	mock *MockGitHubAPIClient
+}
+
+// NewMockGitHubAPIClient creates a new mock instance.
+func NewMockGitHubAPIClient(ctrl *gomock.Controller) *MockGitHubAPIClient {
+	mock := &MockGitHubAPIClient{ctrl: ctrl}
+	mock.recorder = &MockGitHubAPIClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockGitHubAPIClient) EXPECT() *MockGitHubAPIClientMockRecorder {
+	return m.recorder
+}
+
+// Get mocks base method.
+func (m *MockGitHubAPIClient) Get(ctx context.Context, path string, response any) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, path, response)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockGitHubAPIClientMockRecorder) Get(ctx, path, response any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockGitHubAPIClient)(nil).Get), ctx, path, response)
+}
+
+// GetPullRequests mocks base method.
+func (m *MockGitHubAPIClient) GetPullRequests(ctx context.Context, owner, repo string) ([]services.PullRequestAPIData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPullRequests", ctx, owner, repo)
+	ret0, _ := ret[0].([]services.PullRequestAPIData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPullRequests indicates an expected call of GetPullRequests.
+func (mr *MockGitHubAPIClientMockRecorder) GetPullRequests(ctx, owner, repo any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPullRequests", reflect.TypeOf((*MockGitHubAPIClient)(nil).GetPullRequests), ctx, owner, repo)
+}
+
+// GetRepoData mocks base method.
+func (m *MockGitHubAPIClient) GetRepoData(ctx context.Context, owner, repo string) (*services.RepoAPIData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRepoData", ctx, owner, repo)
+	ret0, _ := ret[0].(*services.RepoAPIData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRepoData indicates an expected call of GetRepoData.
+func (mr *MockGitHubAPIClientMockRecorder) GetRepoData(ctx, owner, repo any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepoData", reflect.TypeOf((*MockGitHubAPIClient)(nil).GetRepoData), ctx, owner, repo)
+}
+
 // MockGitHubService is a mock of GitHubService interface.
 type MockGitHubService struct {
 	ctrl     *gomock.Controller
@@ -161,21 +231,6 @@ func (m *MockGitHubService) EXPECT() *MockGitHubServiceMockRecorder {
 	return m.recorder
 }
 
-// GetCurrentUser mocks base method.
-func (m *MockGitHubService) GetCurrentUser() (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCurrentUser")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCurrentUser indicates an expected call of GetCurrentUser.
-func (mr *MockGitHubServiceMockRecorder) GetCurrentUser() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentUser", reflect.TypeOf((*MockGitHubService)(nil).GetCurrentUser))
-}
-
 // GetRepoStats mocks base method.
 func (m *MockGitHubService) GetRepoStats(owner, repo string) (*services.RepoStats, error) {
 	m.ctrl.T.Helper()
@@ -189,6 +244,108 @@ func (m *MockGitHubService) GetRepoStats(owner, repo string) (*services.RepoStat
 func (mr *MockGitHubServiceMockRecorder) GetRepoStats(owner, repo any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepoStats", reflect.TypeOf((*MockGitHubService)(nil).GetRepoStats), owner, repo)
+}
+
+// SetMaxConcurrent mocks base method.
+func (m *MockGitHubService) SetMaxConcurrent(maxConcurrent int) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetMaxConcurrent", maxConcurrent)
+}
+
+// SetMaxConcurrent indicates an expected call of SetMaxConcurrent.
+func (mr *MockGitHubServiceMockRecorder) SetMaxConcurrent(maxConcurrent any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMaxConcurrent", reflect.TypeOf((*MockGitHubService)(nil).SetMaxConcurrent), maxConcurrent)
+}
+
+// SetTimeout mocks base method.
+func (m *MockGitHubService) SetTimeout(timeout time.Duration) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetTimeout", timeout)
+}
+
+// SetTimeout indicates an expected call of SetTimeout.
+func (mr *MockGitHubServiceMockRecorder) SetTimeout(timeout any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeout", reflect.TypeOf((*MockGitHubService)(nil).SetTimeout), timeout)
+}
+
+// MockBatchGitHubService is a mock of BatchGitHubService interface.
+type MockBatchGitHubService struct {
+	ctrl     *gomock.Controller
+	recorder *MockBatchGitHubServiceMockRecorder
+	isgomock struct{}
+}
+
+// MockBatchGitHubServiceMockRecorder is the mock recorder for MockBatchGitHubService.
+type MockBatchGitHubServiceMockRecorder struct {
+	mock *MockBatchGitHubService
+}
+
+// NewMockBatchGitHubService creates a new mock instance.
+func NewMockBatchGitHubService(ctrl *gomock.Controller) *MockBatchGitHubService {
+	mock := &MockBatchGitHubService{ctrl: ctrl}
+	mock.recorder = &MockBatchGitHubServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockBatchGitHubService) EXPECT() *MockBatchGitHubServiceMockRecorder {
+	return m.recorder
+}
+
+// GetRepoStats mocks base method.
+func (m *MockBatchGitHubService) GetRepoStats(owner, repo string) (*services.RepoStats, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRepoStats", owner, repo)
+	ret0, _ := ret[0].(*services.RepoStats)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRepoStats indicates an expected call of GetRepoStats.
+func (mr *MockBatchGitHubServiceMockRecorder) GetRepoStats(owner, repo any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepoStats", reflect.TypeOf((*MockBatchGitHubService)(nil).GetRepoStats), owner, repo)
+}
+
+// GetRepoStatsBatch mocks base method.
+func (m *MockBatchGitHubService) GetRepoStatsBatch(repos []string) ([]*services.RepoStats, []error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRepoStatsBatch", repos)
+	ret0, _ := ret[0].([]*services.RepoStats)
+	ret1, _ := ret[1].([]error)
+	return ret0, ret1
+}
+
+// GetRepoStatsBatch indicates an expected call of GetRepoStatsBatch.
+func (mr *MockBatchGitHubServiceMockRecorder) GetRepoStatsBatch(repos any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepoStatsBatch", reflect.TypeOf((*MockBatchGitHubService)(nil).GetRepoStatsBatch), repos)
+}
+
+// SetMaxConcurrent mocks base method.
+func (m *MockBatchGitHubService) SetMaxConcurrent(maxConcurrent int) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetMaxConcurrent", maxConcurrent)
+}
+
+// SetMaxConcurrent indicates an expected call of SetMaxConcurrent.
+func (mr *MockBatchGitHubServiceMockRecorder) SetMaxConcurrent(maxConcurrent any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMaxConcurrent", reflect.TypeOf((*MockBatchGitHubService)(nil).SetMaxConcurrent), maxConcurrent)
+}
+
+// SetTimeout mocks base method.
+func (m *MockBatchGitHubService) SetTimeout(timeout time.Duration) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetTimeout", timeout)
+}
+
+// SetTimeout indicates an expected call of SetTimeout.
+func (mr *MockBatchGitHubServiceMockRecorder) SetTimeout(timeout any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeout", reflect.TypeOf((*MockBatchGitHubService)(nil).SetTimeout), timeout)
 }
 
 // MockOutput is a mock of Output interface.

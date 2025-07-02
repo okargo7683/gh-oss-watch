@@ -13,7 +13,7 @@ func main() {
 	cacheService := services.NewCacheService()
 	output := services.NewConsoleOutput()
 
-	githubService, err := services.NewGitHubService()
+	githubService, err := services.NewConcurrentGitHubService()
 	if err != nil {
 		fmt.Printf("Error creating GitHub service: %v\n", err)
 		os.Exit(1)
