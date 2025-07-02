@@ -20,6 +20,12 @@ A GitHub CLI plugin that helps open-source maintainers stay on top of repository
 - [GitHub CLI](https://github.com/cli/cli) installed and authenticated
 - Go 1.24+ (if building from source)
 
+### GitHub CLI Extension
+
+```bash
+gh extension install jackchuka/gh-oss-watch
+```
+
 ### Install from Source
 
 ```bash
@@ -27,12 +33,6 @@ git clone https://github.com/jackchuka/gh-oss-watch.git
 cd gh-oss-watch
 go build -o gh-oss-watch .
 # Copy to your PATH or use directly
-```
-
-### GitHub CLI Extension (Coming Soon)
-
-```bash
-gh extension install jackchuka/gh-oss-watch
 ```
 
 ## Quick Start
